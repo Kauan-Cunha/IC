@@ -73,7 +73,7 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
                 k = sigma[k]
 
     if len(ciclos) > 0:
-        m = min(m, min(ciclos))                                 #atualiza a constante.
+        m = max(m, max(ciclos))                                 #atualiza a constante.
 
     return floria_rec(custo, conjunto_v, f, m, iterada + 1)
 
@@ -94,5 +94,5 @@ if __name__ == '__main__':
         [(1, 1)],   # Vértice 3 aponta para 4 e peso 1
     ]
 
-    vetor, valor, iterada = floria(grafo, 100)
+    vetor, valor, iterada = floria(grafo, 0)
     print(f"vetor: {vetor}, valor: {valor}, iterada: {iterada}")

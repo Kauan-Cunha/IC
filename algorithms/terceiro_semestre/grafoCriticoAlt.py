@@ -10,15 +10,17 @@ def grafoCritico_adj(c_adj, m, u):
     O peso armazenado é o peso original da aresta.
     """
     n = len(c_adj)
-    c_crit = []
+    c_crit_reverso = []
     for i in range(n):
         entradas = []
         for pai, peso in c_adj[i]:
-            w_norm = peso + u[pai] - u[i] - m
-            if abs(w_norm) < 1.0e-9 and peso != float('-inf'):
-                entradas.append((pai, peso))  # mantém o peso original
-        c_crit.append(entradas)
-    return c_crit
+            # Fórmula correta para MAX-PLUS
+            w_norm = u[pai] + peso - m - u[i]
+            if abs(w_norm) < 1.0e-13:
+                # Adiciona no formato REVERSO (como a entrada)
+                entradas.append((pai, peso))
+        c_crit_reverso.append(entradas)
+    return c_crit_reverso
 
 def grafoCritico(c, m, u):
 

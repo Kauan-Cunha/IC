@@ -78,6 +78,7 @@ def floria(custo, max):
     conjunto_v = np.ones(shape=len(custo[0]), dtype= np.int8)
     f = np.zeros(shape=len(custo))
 
+
     return floria_rec(custo, conjunto_v, f, max)
 
 

@@ -82,7 +82,8 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
 def floria(custo, max):
     """Creates all auxiliar estructure"""
     conjunto_v = np.ones(shape=len(custo[0]), dtype= np.int8)
-    f = np.zeros(shape=len(custo))
+    # f = np.zeros(shape=len(custo))
+    f = np.full(len(custo), 100)
 
     return floria_rec(custo, conjunto_v, f, max)
 
