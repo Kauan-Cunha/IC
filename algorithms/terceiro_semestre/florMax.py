@@ -98,7 +98,7 @@ if __name__ == '__main__':
     inf = float('-inf')
     custo = [
         [inf, 100, inf, inf],
-        [inf, inf ,29, 1],
+        [inf, inf ,50, 1],
         [inf, 1, inf, inf],
         [1, inf, inf, inf]
     ]

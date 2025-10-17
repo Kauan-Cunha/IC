@@ -1,8 +1,7 @@
 import numpy as np
-import time
 import desenhar_grafo as draw
 import grafoCriticoAlt as critic
-import tarjan_lista
+
 
 def peso_aresta(c_adj, origem, destino):
     for pai, peso in c_adj[destino]:
@@ -12,30 +11,31 @@ def peso_aresta(c_adj, origem, destino):
 
 def oleinik(f, c_adj, m):
     """
-    Calcula a constante de lax-oleinik e o argmin(nó que minimiza). O retorno é Tc = [(ui, ji)] 
-    sendo ui a nova função que minimiza e ji o no que minimiza.
-
-    IMPORTANTE: 
-    f := o resultado do operador anterior;
-    c_adj := é uma lista de adj que representa o grafo, mas ele na verdade marca todos os nós que chegam em i.
-    m := é a constante ciclica minimal
+    Calcula a constante de lax-oleinik e o argmax(nó que maximiza).
     """
-    Tc = []     #terá tupla do tipo (u0, j0), u0 é o peso que minimiza e o j0 é o nó que minimiza (que chega em i)
+    Tc = []
     Argmax = []
     for i in range(len(c_adj)):
-        j = int()
+        
+        # Se o nó 'i' não tiver arestas de entrada (é um nó de origem)
+        if not c_adj[i]:
+            Tc.append(f[i])      # O valor da função não se altera, pois não há max a ser feito.
+            Argmax.append(i)     # O nó aponta para si mesmo, pois não tem predecessor.
+            continue             # Pula para a próxima iteração do laço principal.
+
+        # Se o nó tiver arestas de entrada, executa a lógica original
+        j = -1 # Inicializa com um valor inválido para garantir que seja atualizado
         u = float("-inf")
         for pai in c_adj[i]:
-            #A tentativa aqui é checar se o pai zero maximiza o valor anterior, se sim, atualiza j e u
-            if f[pai[0]] - m + pai[1] > u:
-                u = f[pai[0]] - m + pai[1]
+            valor_candidato = f[pai[0]] - m + pai[1]
+            if valor_candidato > u:
+                u = valor_candidato
                 j = pai[0]
 
-        Tc.append(u) #adiciona a nova operador para cada i
+        Tc.append(u)
         Argmax.append(j)
 
     return Tc, Argmax
-
 
 def floria_rec(custo ,conjunto_v, f, m, iterada=1):
     """Função recursiva que calcula simutaneamente a Constate Cíclica Minimal e os Corretores de um grafo.
@@ -49,7 +49,7 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
 
 
     for j in range(conjunto_v.size):
-        if f[j] - Tc[j] < 1e-9:  #se f[j] é maior que u[0]
+        if f[j] - Tc[j] < 1e-13:  #se f[j] é maior que u[0]
             conjunto_v[j] = 1   
             f[j] = Tc[j]
         else:                    #se for menor ou igual
@@ -87,14 +87,12 @@ def floria(custo, max):
 
 if __name__ == '__main__':
  # Exemplo de lista de adjacências reversa (arestas que chegam em i)
-    c_adj = [
-        [(0, 274)],
-        [(1, 267), (4, 41)],
-        [(0, 28), (1, 35), (3, 44), (4, 242)],
-        [(0, 7), (2, 277), (3, 29)],
-        [(1, 27), (3, 212)]
+    grafo = [
+        [(3, 1)],  # Vértice 0 aponta para 1 e peso 20
+        [(0, 100), (2, 1)],   # Vértice 1 aponta para 0 e peso 5
+        [(1, 50)],  # Vértice 2 aponta para 3 e peso 10
+        [(1, 1)],   # Vértice 3 aponta para 4 e peso 1
     ]
-    draw.draw_weighted_graph_adj(c_adj)
-    vetor, valor, iterada = floria(c_adj, 300)
-    print (vetor, valor, sep= '\n')
 
+    vetor, valor, iterada = floria(grafo, 100)
+    print(f"vetor: {vetor}, valor: {valor}, iterada: {iterada}")
