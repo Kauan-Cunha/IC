@@ -1,0 +1,5 @@
+A função plotar tem o input de uma mss, uma função que cria a matriz, 
+e a função que estaremos analizando o tempo.
+
+A saída será apenas os vetores x e y a ser utilizado no "mostrar".
+Elá escrevera em um do

@@ -1,0 +1,2 @@
+A função plotar terá duas entradas uma mss para lembrar dps, a func da matriz e só.
+Ele retonará a escritura 
