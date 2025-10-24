@@ -3,39 +3,38 @@ import desenhar_grafo as draw
 import grafoCriticoAlt as critic
 import copy
 
-def peso_aresta(c_adj, origem, destino):
-    for pai, peso in c_adj[destino]:
-        if pai == origem:
-            return peso
-    return float('-inf')  # ou outro valor padrão se não existir
-
 def oleinik(f, c_adj, m):
     """
     Calcula a constante de lax-oleinik e o argmax(nó que maximiza).
     """
     Tc = []
     Argmin = []
+    MinCost = []
     for i in range(len(c_adj)):
         
         # Se o nó 'i' não tiver arestas de entrada (é um nó de origem)
         if not c_adj[i]:
             Tc.append(f[i])      # O valor da função não se altera, pois não há max a ser feito.
             Argmin.append(i)     # O nó aponta para si mesmo, pois não tem predecessor.
+            MinCost.append(float('inf'))
             continue             # Pula para a próxima iteração do laço principal.
 
         # Se o nó tiver arestas de entrada, executa a lógica original
         j = -1 # Inicializa com um valor inválido para garantir que seja atualizado
         u = float("inf")
+        custo_aresta_min = float("inf")
         for pai in c_adj[i]:
             valor_candidato = f[pai[0]] - m + pai[1]
             if valor_candidato < u:
                 u = valor_candidato
                 j = pai[0]
+                custo_aresta_min = pai[1]
 
         Tc.append(u)
         Argmin.append(j)
+        MinCost.append(custo_aresta_min)
 
-    return Tc, Argmin
+    return Tc, Argmin, MinCost
 
 def floria_rec(custo ,conjunto_v, f, m, iterada=1):
     """Função recursiva que calcula simutaneamente a Constate Cíclica Minimal e os Corretores de um grafo.
@@ -45,8 +44,8 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
         f: vetor/função arbitrária de tamanho #V(G);
     """
 
-    Tc, sigma = oleinik(f, custo, m) #calcula o lax_oleinik para todo i e parcialmente sigma.
-
+    #Esse custo_sigma guarda os valores dos pais para serem usados em media_dinâmica
+    Tc, sigma, custos_sigma = oleinik(f, custo, m) #calcula o lax_oleinik para todo i e parcialmente sigma.
 
     for j in range(conjunto_v.size):
         if f[j] - Tc[j] > 1e-13:  #se f[j] é maior que u[0]
@@ -64,8 +63,9 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
         if conjunto_v[j] == 1:
             k = j
             custo_din = 0
-            for passagem in range(1, iterada+1):                            #calcula dinamicamente a média dos possíveis ciclos.
-                custo_din = (custo_din*(passagem-1) + peso_aresta(custo, sigma[k], k))/passagem
+            for passagem in range(1, iterada+1):
+                # Substitui a chamada peso_aresta por um acesso O(1)
+                custo_din = (custo_din*(passagem-1) + custos_sigma[k])/passagem
 
                 if sigma[k] == j:
                     ciclos.append(custo_din)
@@ -110,7 +110,7 @@ if __name__ == '__main__':
     ]
     draw.draw_weighted_graph_adj(grafo)
     
-    vetor, valor, iterada, custo = floria(grafo, 100, is_max_or_min='max')
+    vetor, valor, iterada, custo = floria(grafo, 100, is_max_or_min='min')
     grafo_critico = critic.grafoCritico_adj(custo, valor, vetor)
 
     draw.draw_weighted_graph_adj(grafo_critico)

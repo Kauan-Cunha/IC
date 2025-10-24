@@ -23,8 +23,8 @@ def matriz_custo_para_lista_adj(matriz_custo):
 
   for i in range(num_vertices): # i é a origem (pai)
     for j in range(num_vertices): # j é o destino
-      # Verifica se o valor é maior que 0 para considerar a existência da aresta
-      if matriz_custo[i][j] > 0:
+      # Verifica se' o valor é maior que 0 para considerar a existência da aresta
+      if matriz_custo[i][j] != float("inf"):
         peso = matriz_custo[i][j]
         # Adiciona na lista do nó de DESTINO (j) a tupla (ORIGEM, peso)
         lista_adj[j].append((i, peso))
@@ -209,6 +209,6 @@ def randomised_weigh_matrix(c_matrix, max_value):
                 # FIX: Onde não há aresta, o valor deve ser 0.
                 # A função matriz_custo_para_lista_adj já interpreta 0 como ausência de aresta.
                 # Isso evita o uso de math.inf e previne o erro.
-                new_matrix[i, j] = 0
+                new_matrix[i, j] = float("inf")
 
     return new_matrix, maximum

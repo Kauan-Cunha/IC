@@ -1,4 +1,4 @@
-import flor_adj as flor
+import algorithms.terceiro_semestre.flor_adj_max as flor
 import desenhar_grafo as draw
 import grafoCriticoAlt as critico
 import tarjan_listaDOIS as tarjan
@@ -40,6 +40,16 @@ def acougue_teste(custo_reverso, media_esperada):
 
 
 def acougue(custo_reverso, media_esperada):
+    """
+    custo_lista: A linha representada em grafo de precedencia do que você quer melhorar.
+    T: Tempo arbitrario máximo de espera em um ciclo/rota/linha.
+
+    1.Calcula M(c) atual.
+    2.Se M(c)<=T, para.
+    3.Caso contrario, aplica tarjan modificado.
+    4.Repete 1.
+
+    """
 
     #Copia do custo que modificaremos
     custo_modificado = copy.deepcopy(custo_reverso)
