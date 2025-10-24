@@ -14,12 +14,13 @@ def grafoCritico_adj(c_adj, m, u):
     for i in range(n):
         entradas = []
         for pai, peso in c_adj[i]:
-            # Fórmula correta para MAX-PLUS
-            w_norm = u[pai] + peso - m - u[i]
-            if abs(w_norm) < 1.0e-13:
-                # Adiciona no formato REVERSO (como a entrada)
+            valor_calculado = u[pai] + peso - m
+
+            if np.isclose(u[i], valor_calculado):
                 entradas.append((pai, peso))
+                
         c_crit_reverso.append(entradas)
+        
     return c_crit_reverso
 
 def grafoCritico(c, m, u):

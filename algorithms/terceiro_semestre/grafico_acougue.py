@@ -1,101 +1,122 @@
-# teste_convergencia.py
-import os
-import time
+import random
 import numpy as np
 import matplotlib.pyplot as plt
 import algoAcogue as acougue
+import pprint # Módulo para formatar a lista de forma legível
 
-# --- PARÂMETROS DO EXPERIMENTO ---
-
-# Diretório onde os grafos de teste estão localizados
-DIRETORIO_GRAFOS = "grafos_de_teste"
-
-# Define os tamanhos dos grafos a serem testados (deve corresponder ao que foi gerado)
-TAMANHOS_TESTE = range(5, 101, 5)
-
-# Quantos grafos testar para cada tamanho (deve corresponder ao que foi gerado)
-GRAFOS_POR_TAMANHO = 10
-
-# Média de ciclo desejada para o critério de parada do algoritmo
-MEDIA_ESPERADA_FINAL = 0.0
-
-# --- FUNÇÃO DE LEITURA DE GRAFO ---
-
-def ler_grafo_de_arquivo(caminho_arquivo: str) -> list:
+def gerar_grafo_reverso_com_ciclo(num_vertices, num_extra_edges):
     """
-    Lê um grafo de um arquivo de texto e o retorna no formato de lista de adjacência reversa.
-    O formato do arquivo esperado é: 'filho pai peso' por linha.
-    """
-    arestas = []
-    num_nos = 0
-    with open(caminho_arquivo, 'r') as f:
-        for linha in f:
-            if not linha.strip(): continue # Pula linhas vazias
-            filho, pai, peso = map(int, linha.strip().split())
-            arestas.append((filho, pai, peso))
-            num_nos = max(num_nos, filho, pai)
+    Gera um grafo aleatório com pelo menos um ciclo garantido.
 
-    adj_reversa = [[] for _ in range(num_nos + 1)]
-    for filho, pai, peso in arestas:
-        adj_reversa[filho].append((pai, peso))
+    A representação é uma lista de adjacências REVERSA, onde
+    grafo[i] contém uma lista de tuplas (pai, peso) para arestas pai -> i.
+    """
+    if num_vertices <= 0:
+        return []
+
+    grafo_reverso = [[] for _ in range(num_vertices)]
+    
+    # 1. Garante pelo menos um ciclo
+    for i in range(num_vertices):
+        origem = i
+        destino = (i + 1) % num_vertices
+        peso = random.randint(1, 100)
+        grafo_reverso[destino].append((origem, peso))
+
+    # 2. Adiciona arestas extras
+    arestas_adicionadas = set()
+    for i in range(num_vertices):
+        arestas_adicionadas.add((i, (i + 1) % num_vertices))
+
+    for _ in range(num_extra_edges):
+        while True:
+            origem = random.randint(0, num_vertices - 1)
+            destino = random.randint(0, num_vertices - 1)
+            if origem != destino and (origem, destino) not in arestas_adicionadas:
+                break
         
-    return adj_reversa
+        peso = random.randint(1, 100)
+        grafo_reverso[destino].append((origem, peso))
+        arestas_adicionadas.add((origem, destino))
+        
+    return grafo_reverso
 
-# --- FUNÇÃO PRINCIPAL DE EXECUÇÃO ---
-
-def executar_experimento():
+def main():
     """
-    Executa o ciclo de testes a partir dos grafos pré-gerados,
-    coleta os dados e gera o gráfico de resultados.
+    Função principal para executar o teste de desempenho, gerar logs e plotar o gráfico.
     """
-    if not os.path.exists(DIRETORIO_GRAFOS):
-        print(f"Erro: O diretório '{DIRETORIO_GRAFOS}' não foi encontrado.")
-        print("Por favor, execute o script 'gerar_grafos_com_ciclo.py' primeiro.")
-        return
+    tamanhos_dos_grafos = []
+    iteracoes_de_convergencia = []
+    log_entries = [] # Lista para armazenar as strings de log
 
-    resultados = {n: [] for n in TAMANHOS_TESTE}
-    
-    print("\nIniciando o experimento de convergência...")
-    tempo_total_inicio = time.time()
+    # --- Configurações do Teste ---
+    MIN_VERTICES = 2
+    MAX_VERTICES = 20
+    PASSO = 1
+    MEDIA_ALVO = 20.0
 
-    for n in TAMANHOS_TESTE:
-        print(f"\nTestando grafos de tamanho n={n}...")
-        for i in range(GRAFOS_POR_TAMANHO):
-            nome_arquivo = os.path.join(DIRETORIO_GRAFOS, f"grafo_n{n}_id{i}.txt")
-            
-            custo_reverso = ler_grafo_de_arquivo(nome_arquivo)
-            
-            iteracoes = acougue.acougue_teste(custo_reverso, MEDIA_ESPERADA_FINAL)
-            
-            resultados[n].append(iteracoes)
-            print(f"  Grafo {i+1}/{GRAFOS_POR_TAMANHO}: {iteracoes} iterações.")
-            
-    tempo_total_fim = time.time()
-    print(f"\nExperimento concluído em {tempo_total_fim - tempo_total_inicio:.2f} segundos.")
+    print("Iniciando o teste de desempenho do algoritmo Açougue...")
+    print(f"Testando grafos de {MIN_VERTICES} a {MAX_VERTICES} vértices.")
 
-    # --- ANÁLISE E PLOTAGEM DOS RESULTADOS ---
-    print("Analisando resultados e gerando gráfico...")
-    
-    tamanhos_plot = sorted(resultados.keys())
-    medias_iteracoes = [np.mean(resultados[n]) for n in tamanhos_plot]
-    desvios_padrao = [np.std(resultados[n]) for n in tamanhos_plot]
-    
-    plt.figure(figsize=(12, 7))
-    plt.errorbar(tamanhos_plot, medias_iteracoes, yerr=desvios_padrao,
-                 fmt='-o', capsize=5, label='Média de Iterações com Desvio Padrão')
-    
-    plt.title('Convergência do Algoritmo "Açougue" (Ciclo Máximo Garantido)')
-    plt.xlabel('Tamanho do Grafo (Número de Vértices)')
-    plt.ylabel('Número Médio de Iterações')
-    plt.xticks(TAMANHOS_TESTE)
-    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    for n_vertices in range(MIN_VERTICES, MAX_VERTICES + 1, PASSO):
+        print(f"  - Gerando e testando grafo com {n_vertices} vértices...")
+        
+        n_arestas_extras = n_vertices 
+        
+        grafo_teste = gerar_grafo_reverso_com_ciclo(n_vertices, n_arestas_extras)
+        
+        # --- LÓGICA DE LOGGING ---
+        # Formata a lista para ser bonita e legível
+        pretty_list_str = pprint.pformat(grafo_teste, indent=4)
+        # Cria a entrada de log no formato solicitado e a armazena
+        log_entry = f"grafo_adj_{n_vertices} = {pretty_list_str}\n\n"
+        log_entries.append(log_entry)
+        
+        # Chama a sua função de teste para obter o número de iterações
+        iteracoes = acougue.acougue_teste(grafo_teste, MEDIA_ALVO)
+        
+        tamanhos_dos_grafos.append(n_vertices)
+        iteracoes_de_convergencia.append(iteracoes)
+
+    # --- ESCREVE O ARQUIVO DE LOG ---
+    # Após o término de todos os testes, escreve o arquivo de uma só vez.
+    try:
+        with open("log.txt", "w") as log_file:
+            # Escreve o cabeçalho com o número total de grafos logados
+            log_file.write(f"Num_de_Logs: {len(log_entries)}\n\n")
+            # Escreve todas as entradas de log armazenadas
+            for entry in log_entries:
+                log_file.write(entry)
+        print("Arquivo 'log.txt' gerado com sucesso.")
+    except IOError as e:
+        print(f"Erro ao escrever o arquivo de log: {e}")
+
+
+    print("Teste concluído. Gerando o gráfico...")
+
+    # --- Plotando os resultados com Matplotlib ---
+    x_data = np.array(tamanhos_dos_grafos)
+    y_data = np.array(iteracoes_de_convergencia)
+
+    try:
+        coeficientes = np.polyfit(x_data, y_data, 2)
+        polinomio_ajuste = np.poly1d(coeficientes)
+        x_curva = np.linspace(x_data.min(), x_data.max(), 500)
+        y_curva = polinomio_ajuste(x_curva)
+    except np.linalg.LinAlgError:
+        print("Não foi possível gerar a curva de ajuste.")
+        x_curva, y_curva = [], []
+
+    plt.figure(figsize=(10, 8))
+    plt.scatter(x_data, y_data, color='blue', marker='o', label='Desempenho Real')
+    if len(x_curva) > 0:
+        plt.plot(x_curva, y_curva, '--', color='skyblue', label='Ajuste Polinomial (Tendência)')
+    plt.title('Desempenho do Algoritmo Açougue', fontsize=16)
+    plt.xlabel('Número de Vértices', fontsize=12)
+    plt.ylabel('Número de Iterações para Convergência', fontsize=12)
     plt.legend()
-    
-    nome_grafico = 'convergencia_acougue_ciclo_garantido.png'
-    plt.savefig(nome_grafico)
-    print(f"Gráfico salvo como '{nome_grafico}'.")
-    
+    plt.grid(True)
     plt.show()
 
-if __name__ == '__main__':
-    executar_experimento()
+if __name__ == "__main__":
+    main()
