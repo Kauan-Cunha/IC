@@ -4,7 +4,7 @@ import desenhar_grafo as draw
 import grafoCriticoAlt as critic
 
 def oleinik(f, c, m):
-    """Calcula Lax-Oleinik para todo i. E retorna um vetor com o resultado (Tc) e outro com o índice j que faz o resultado (Argmin)"""
+    """Calcula Lax-Oleinik  para todo i. E retorna um vetor com o resultad o (Tc) e outro com o índice j que faz o resultado (Argmin)"""
     Tc = []
     Argmax = []
     for i in range(len(f)):

@@ -14,7 +14,6 @@ def oleinik(f, c, m):
 
 
 def karp(custo):
-
     n = len(custo)
 
     # Calcula T(0), T^2(0), ... , T^n(0), T^{n+1}(0), onde T é o op. de Lax-Oleinik

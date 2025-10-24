@@ -1,7 +1,7 @@
 import numpy as np
 import desenhar_grafo as draw
 import grafoCriticoAlt as critic
-
+import copy
 
 def peso_aresta(c_adj, origem, destino):
     for pai, peso in c_adj[destino]:
@@ -14,28 +14,28 @@ def oleinik(f, c_adj, m):
     Calcula a constante de lax-oleinik e o argmax(nó que maximiza).
     """
     Tc = []
-    Argmax = []
+    Argmin = []
     for i in range(len(c_adj)):
         
         # Se o nó 'i' não tiver arestas de entrada (é um nó de origem)
         if not c_adj[i]:
             Tc.append(f[i])      # O valor da função não se altera, pois não há max a ser feito.
-            Argmax.append(i)     # O nó aponta para si mesmo, pois não tem predecessor.
+            Argmin.append(i)     # O nó aponta para si mesmo, pois não tem predecessor.
             continue             # Pula para a próxima iteração do laço principal.
 
         # Se o nó tiver arestas de entrada, executa a lógica original
         j = -1 # Inicializa com um valor inválido para garantir que seja atualizado
-        u = float("-inf")
+        u = float("inf")
         for pai in c_adj[i]:
             valor_candidato = f[pai[0]] - m + pai[1]
-            if valor_candidato > u:
+            if valor_candidato < u:
                 u = valor_candidato
                 j = pai[0]
 
         Tc.append(u)
-        Argmax.append(j)
+        Argmin.append(j)
 
-    return Tc, Argmax
+    return Tc, Argmin
 
 def floria_rec(custo ,conjunto_v, f, m, iterada=1):
     """Função recursiva que calcula simutaneamente a Constate Cíclica Minimal e os Corretores de um grafo.
@@ -49,7 +49,7 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
 
 
     for j in range(conjunto_v.size):
-        if f[j] - Tc[j] < 1e-13:  #se f[j] é maior que u[0]
+        if f[j] - Tc[j] > 1e-13:  #se f[j] é maior que u[0]
             conjunto_v[j] = 1   
             f[j] = Tc[j]
         else:                    #se for menor ou igual
@@ -73,26 +73,45 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
                 k = sigma[k]
 
     if len(ciclos) > 0:
-        m = max(m, max(ciclos))                                 #atualiza a constante.
+        m = min(m, min(ciclos))                                 #atualiza a constante.
 
     return floria_rec(custo, conjunto_v, f, m, iterada + 1)
 
-def floria(custo, max):
-    """Creates all auxiliar estructure"""
-    conjunto_v = np.ones(shape=len(custo), dtype= np.int8)
-    f = np.zeros(shape=len(custo))
-
-    return floria_rec(custo, conjunto_v, f, max)
-
+def floria(custo, min, is_max_or_min = 'min'):
+    """
+    Creates all auxiliar estructure;
+    Checks tag if it was supposed to give you the minimal or maximal ciclo
+    
+    """
+    if is_max_or_min == 'min':
+        conjunto_v = np.ones(shape=len(custo), dtype= np.int8)
+        f = np.zeros(shape=len(custo))
+        vetor, valor, iterada = floria_rec(custo, conjunto_v, f, min)
+        return vetor, valor, iterada, custo
+    
+    elif is_max_or_min == 'max':
+        custo_invertido = copy.deepcopy(custo)
+        for vtx in custo_invertido:
+            for edge in vtx:
+                edge[1] = -edge[1]  #inverte os pesos do grafo
+        
+        conjunto_v = np.ones(shape=len(custo), dtype= np.int8)
+        f = np.zeros(shape=len(custo))
+        vetor, valor, iterada = floria_rec(custo_invertido, conjunto_v, f,0)
+        return vetor, valor, iterada, custo_invertido
 
 if __name__ == '__main__':
- # Exemplo de lista de adjacências reversa (arestas que chegam em i)
+#Perceba que todo o custo deve ser negativado para tirar o max
     grafo = [
-        [(3, 1)],  # Vértice 0 aponta para 1 e peso 20
-        [(0, 100), (2, 1)],   # Vértice 1 aponta para 0 e peso 5
-        [(1, 50)],  # Vértice 2 aponta para 3 e peso 10
-        [(1, 1)],   # Vértice 3 aponta para 4 e peso 1
+        [[3, 1]],  # Vértice 0 aponta para 1 e peso 20
+        [[0, 100], [2, 1]],   # Vértice 1 aponta para 0 e peso 5
+        [[1, 50]],  # Vértice 2 aponta para 3 e peso 10
+        [[1, 1]],   # Vértice 3 aponta para 4 e peso 1
     ]
+    draw.draw_weighted_graph_adj(grafo)
+    
+    vetor, valor, iterada, custo = floria(grafo, 100, is_max_or_min='max')
+    grafo_critico = critic.grafoCritico_adj(custo, valor, vetor)
 
-    vetor, valor, iterada = floria(grafo, 0)
+    draw.draw_weighted_graph_adj(grafo_critico)
     print(f"vetor: {vetor}, valor: {valor}, iterada: {iterada}")
