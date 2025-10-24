@@ -191,6 +191,8 @@ def main():
     print("Grafo de teste (direto):")
     draw.draw_weighted_graph_adj(sub_grafo)
     result = tarjan_subgrafo_lista(grafo, sub_grafo)
+    
+    print("Resultado")
     draw.draw_weighted_graph_adj(result[1])
 if __name__ == '__main__':
     main()

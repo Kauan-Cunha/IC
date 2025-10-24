@@ -100,15 +100,16 @@ def main():
     ]
 
     grafo = [
-        [[1,2], [2,2]],
-        [[0,50]],
-        [[0,60]]
+        [[1,50], [2,60]],
+        [[0, 1]],
+        [[0,2]]
     ]   
     
     draw.draw_weighted_graph_adj(grafo)
     
     result = acougue(grafo, 25)
     
+    print(result)
     draw.draw_weighted_graph_adj(result)
 
 

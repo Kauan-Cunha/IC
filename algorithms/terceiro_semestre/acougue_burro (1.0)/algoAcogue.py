@@ -90,7 +90,7 @@ def acougue(custo_reverso, media_esperada):
         
 
 def main():
-    grafo = [
+    grafo_ = [
         [[1,1], [4, 1000], [3, 1]],
         [[1,2], [0,100]],
         [[0,100]],
@@ -98,6 +98,12 @@ def main():
         [],
         [[2,9]]
     ]
+
+    grafo = [
+        [[1,50], [2,60]],
+        [[0, 1]],
+        [[0,2]]
+    ]   
     
     draw.draw_weighted_graph_adj(grafo)
     
