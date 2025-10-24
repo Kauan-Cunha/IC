@@ -136,13 +136,13 @@ def tarjan_rec_subgrafo_lista(
 
                 # 4. Modifica o SUBGRAFO
                 subgrafo_result[u].remove(vizinho_info_subgrafo)
-                subgrafo_result[u].append((id_novo_no, peso_subgrafo / 2))
-                subgrafo_result[id_novo_no].append((v, peso_subgrafo / 2))
+                subgrafo_result[u].append([id_novo_no, peso_subgrafo / 2])
+                subgrafo_result[id_novo_no].append([v, peso_subgrafo / 2])
                 
                 # 5. Modifica o GRAFO PRINCIPAL
                 grafo_principal_result[u].remove(aresta_principal_original)
-                grafo_principal_result[u].append((id_novo_no, peso_principal / 2))
-                grafo_principal_result[id_novo_no].append((v, peso_principal / 2))
+                grafo_principal_result[u].append([id_novo_no, peso_principal / 2])
+                grafo_principal_result[id_novo_no].append([v, peso_principal / 2])
 
     if low[u] == disc[u]:
         while True:

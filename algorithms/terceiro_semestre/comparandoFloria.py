@@ -8,7 +8,7 @@ import time
 from matrices import matriz_custo_para_lista_adj
 
 qtd_nodes = 500
-qtd_media = 20
+qtd_media = 10
 
 # Define a lista de número de nós para testar, com passos mais regulares
 n_nodes = [x for x in range(2, qtd_nodes + 1, 3)]

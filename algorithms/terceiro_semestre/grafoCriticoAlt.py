@@ -3,7 +3,7 @@ import numpy as np
 import flor
 import time
 
-def grafoCritico_adj(c_adj, m, u):
+def grafoCritico_adj(c_adj, m, u, is_max_or_min = 'min'):
     """
     Retorna a lista de adjacências do grafo crítico:
     Só mantém as arestas cujo peso renormalizado é zero (ou próximo de zero).
@@ -17,10 +17,15 @@ def grafoCritico_adj(c_adj, m, u):
             valor_calculado = u[pai] + peso - m
 
             if np.isclose(u[i], valor_calculado):
-                entradas.append((pai, peso))
+                entradas.append([pai, peso])
                 
         c_crit_reverso.append(entradas)
-        
+    
+    if is_max_or_min == 'max':
+        for vtx in c_crit_reverso:
+            for edge in vtx:
+                edge[1] = -edge[1]  #inverte os pesos do grafo
+
     return c_crit_reverso
 
 def grafoCritico(c, m, u):
