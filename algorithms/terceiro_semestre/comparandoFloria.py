@@ -69,11 +69,11 @@ plt.xlabel("Número de Vértices")
 plt.ylabel("Tempo de Execução Médio (s)")
 
 # Pontos de dados
-plt.scatter(x, y_run_time_matriz, marker="o", color="blue", label="Floria Matricial")
+# plt.scatter(x, y_run_time_matriz, marker="o", color="blue", label="Floria Matricial")
 plt.scatter(x, y_run_time_lista, marker="s", color="red", label="Floria em Lista")
 
 # Linhas de ajuste polinomial
-plt.plot(x_novo, y_ajustado_matriz, color="lightblue", linestyle="--", label="Ajuste Matricial")
+# plt.plot(x_novo, y_ajustado_matriz, color="lightblue", linestyle="--", label="Ajuste Matricial")
 plt.plot(x_novo, y_ajustado_lista, color="lightcoral", linestyle="--", label="Ajuste em Lista")
 
 plt.legend()
