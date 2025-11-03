@@ -4,7 +4,7 @@ import desenhar_grafo as draw
 import grafoCriticoAlt as critic
 
 def oleinik(f, c, m):
-    """Calcula Lax-Oleinik  para todo i. E retorna um vetor com o resultad o (Tc) e outro com o índice j que faz o resultado (Argmin)"""
+    """Calcula Lax-Oleinik para todo i. E retorna um vetor com o resultado (Tc) e outro com o índice j que faz o resultado (Argmin)"""
     Tc = []
     Argmax = []
     for i in range(len(f)):
@@ -50,7 +50,7 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
     print(f"Constante m: {m}")
 
     for j in range(conjunto_v.size):
-        if f[j] - Tc[j] < 1e-13:  #se f[j] é maior que u[0]
+        if f[j] - Tc[j] > 1e-13:  #se f[j] é maior que u[0]
             conjunto_v[j] = 1   
             f[j] = Tc[j]
         else:                    #se for menor ou igual
@@ -82,8 +82,7 @@ def floria_rec(custo ,conjunto_v, f, m, iterada=1):
 def floria(custo, max):
     """Creates all auxiliar estructure"""
     conjunto_v = np.ones(shape=len(custo[0]), dtype= np.int8)
-    # f = np.zeros(shape=len(custo))
-    f = np.full(len(custo), 100)
+    f = np.zeros(shape=len(custo))
 
     return floria_rec(custo, conjunto_v, f, max)
 
@@ -98,12 +97,11 @@ def main(custo, max):
 if __name__ == '__main__':
     inf = float('-inf')
     custo = [
-        [inf, 100, inf, inf],
-        [inf, inf ,50, 1],
-        [inf, 1, inf, inf],
-        [1, inf, inf, inf]
+        [inf, 100, inf],
+        [2, inf ,29],
+        [inf, 1, inf]
     ]
 
     vetor, valor, iterada = floria(np.array(custo), 100)
     print(f"---------\nAutovalor: {valor} \n Autovetor: {vetor}\n----------")
-    # print(critic.grafoCritico(custo, valor, vetor))
+    print(critic.grafoCritico(custo, valor, vetor))
