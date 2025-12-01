@@ -92,6 +92,9 @@ def floria(grafo: g.Grafo, is_max_or_min = 'min') -> list:
     # 3. Restaura para o padrão (opcional, mas boa prática)
     grafo.definir_max_ou_min(0)
     
+    if is_max_or_min == 'max':
+        valor = -valor
+        
     return vetor, valor, iterada, grafo
 
 def main():

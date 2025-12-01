@@ -12,8 +12,11 @@ class Grafo():
         for v in range(V):
             self.adicionar_vertice(v)
 
-    def adicionar_vertice(self, vertice):
+    def adicionar_vertice(self, vertice = None):
         """Adiciona um vértice ao grafo. (Tempo esperado: O(1))"""
+
+        if vertice is None:
+            vertice = self.num_vertices
 
         if vertice not in self.adjacencia:
             self.adjacencia[vertice] = {}
@@ -36,13 +39,20 @@ class Grafo():
         if peso > self.maximo:
             self.maximo = peso
     
+    def remover_aresta(self, j, i):
+        """Remove a aresta entre os vértices i e j. (Tempo esperado: O(1))"""
+
+        if j in self.adjacencia and i in self.adjacencia[j]:
+            del self.adjacencia[j][i]
+            del self.adj_peso_invertido[j][i]
+
+
     def obter_peso(self, i, j):
         """Retorna o peso da aresta entre os vértices i e j. (Tempo esperado: O(1))"""
 
         if j in self.adjacencia and i in self.adjacencia[j]:
             return self.adjacencia[j][i]
         else:
-            print("Aresta não existe.")
             return None
 
     def obter_chegada(self, i):
