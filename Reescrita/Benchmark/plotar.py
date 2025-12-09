@@ -5,6 +5,7 @@ import random
 import copy
 import matplotlib.pyplot as plt
 import numpy as np
+import mtxGenerator as mtx
 
 # Adiciona o diretório pai ao path para encontrar os módulos
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
@@ -12,21 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import Grafo.Grafo as g
 from Algoritmos.acougue import acougue_teste
 
-def gerar_grafo_completo(num_vertices: int, peso_min: int = 1, peso_max: int = 100) -> g.Grafo:
-    """
-    Gera um grafo direcionado completo (densidade 100%).
-    Isso significa que para todo par (i, j), existe uma aresta i -> j.
-    """
-    grafo = g.Grafo(num_vertices)
-    
-    # Adicionar arestas i -> j para todo i, j
-    for i in range(num_vertices):
-        for j in range(num_vertices):
-            if i != j: 
-                peso = random.randint(peso_min, peso_max)
-                grafo.adicionar_aresta(i, j, peso)
-    
-    return grafo
+
 
 def rodar_benchmark():
     # CONFIGURAÇÕES DO BENCHMARK
@@ -35,7 +22,7 @@ def rodar_benchmark():
     tamanhos_vertices = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50] 
     
     amostras_por_tamanho = 3   # Média de 10 execuções para evitar dispersão
-    media_esperada_alvo = 10    # Um valor baixo para forçar o algoritmo a trabalhar bastante
+    media_esperada_alvo = 100    # Um valor baixo para forçar o algoritmo a trabalhar bastante
     
     tempos_burro = []
     tempos_intel = []
@@ -52,22 +39,22 @@ def rodar_benchmark():
 
         for i in range(amostras_por_tamanho):
             # Gera um grafo aleatório denso
-            grafo_base = gerar_grafo_completo(n)
+            grafo_base = mtx.gerar_grafo_completo(n)
             
-
-            # --- Teste Burro ---
-            inicio = time.time()
-            _, floria = acougue_teste(grafo_base, media_esperada_alvo, tipo='burro')
-            fim = time.time()
-
-            tempos_locais_burro.append(fim - inicio)
 
             # --- Teste Inteligente ---
             inicio = time.time()
-            acougue_teste(grafo_base, media_esperada_alvo, tipo='intel')
-            _, fim = time.time()
+            iteracao, _ = acougue_teste(grafo_base, media_esperada_alvo, tipo='intel')
+            fim = time.time()
             tempos_locais_intel.append(fim - inicio)
-            
+
+            # --- Teste Burro ---
+            inicio = time.time()
+            iteracao_b, _ = acougue_teste(grafo_base, media_esperada_alvo, tipo='burro')
+            fim = time.time()
+
+            tempos_locais_burro.append(fim - inicio)
+            print(f"b: {iteracao_b} | i: {iteracao}")
 
         # Calcula as médias
         media_b = np.mean(tempos_locais_burro)
@@ -106,7 +93,7 @@ def rodar_benchmark_floria():
 
         for i in range(amostras_por_tamanho):
             # Gera um grafo aleatório denso
-            grafo_base = gerar_grafo_completo(n)
+            grafo_base = mtx.gerar_grafo_completo(n)
             
 
 
@@ -158,5 +145,5 @@ def plotar_resultados(x, y_burro, y_intel):
     plt.show() # Mostra na tela
 
 if __name__ == "__main__":
-    x, y_burro, y_intel = rodar_benchmark_floria()
+    x, y_burro, y_intel = rodar_benchmark()
     plotar_resultados(x, y_burro, y_intel)

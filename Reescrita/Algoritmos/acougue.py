@@ -37,7 +37,7 @@ def acougue_teste(grafo: g.Grafo, media_esperada: float, tipo: str = 'burro') ->
     floria_tempo_medio = 0
     while True:
         # Trava de segurança
-        if iteracao > 200:
+        if iteracao > 1000:
             break
 
         if media_atual <= media_esperada:
@@ -76,11 +76,11 @@ def acougue(grafo: g.Grafo, media_esperada: float, tipo: str = 'burro') -> g.Gra
     grafo_atual = copy.deepcopy(grafo)
 
     vetor_atual, media_atual, _, custo_atual = flor.floria(grafo_atual, is_max_or_min='max')
-
+    print(media_atual)
     iteracao = 0
     while True:
         # Trava de segurança
-        if iteracao > 200:
+        if iteracao > 1000:
             break
 
         if media_atual <= media_esperada:
@@ -88,16 +88,17 @@ def acougue(grafo: g.Grafo, media_esperada: float, tipo: str = 'burro') -> g.Gra
 
 
         grafo_ciclo = critico.grafoCritico(grafo_atual, media_atual, vetor_atual, is_max_or_min='max')
-
+        draw.desenhar_grafo(grafo_ciclo, layout='circular')##------------------------------ se quiser ver o grafo critico desenhado
         if tipo == 'burro':
             grafo_atual = dfs.dfs_corte(grafo_atual, grafo_ciclo)
         else:
             grafo_atual = dfs_intel.dfs_corte(grafo_atual, grafo_ciclo)
 
-        # draw.desenhar_grafo(grafo_atual, layout='circular')##------------------------------ se quiser ver o progresso desenhado
+        draw.desenhar_grafo(grafo_atual, layout='circular')##------------------------------ se quiser ver o progresso desenhado
         # Calcula o novo M(c)
         vetor_atual, media_atual, _, custo_atual = flor.floria(grafo_atual, is_max_or_min='max')
 
+        print(media_atual)
         iteracao += 1
     
     return grafo_atual
@@ -106,23 +107,38 @@ def acougue(grafo: g.Grafo, media_esperada: float, tipo: str = 'burro') -> g.Gra
 def main():
     # --- Grafo "grafo" (O usado no teste) ---
     grafo = g.Grafo(3)
-    
-    # Índice 0: chegam 1 e 2
-    grafo.adicionar_aresta(1, 0, 80)
-    grafo.adicionar_aresta(2, 0, 60)
-    
-    # Índice 1: chega 0
-    grafo.adicionar_aresta(0, 1, 2)
-    
-    # Índice 2: chega 0
-    grafo.adicionar_aresta(0, 2, 2)
+
+
+
+#-----------------------------
+"""
+   Exemplo de como a iteração pode e deve ser diferente para o algoritmo inteligente e para o algoritmo burro.
+
+   
+   Tentar dar uma justificativa do porque o inteligente ser tão melhor.
+"""
+#-----------------------------
+    # #arestas que saem de 0
+    # grafo.adicionar_aresta(0, 1, 40)
+    # grafo.adicionar_aresta(0,2, 22)
+
+    # #arestas que saem de 1
+    # grafo.adicionar_aresta(1,0, 50)
+    # grafo.adicionar_aresta(1,2, 1)
+
+    # #arestas que saem de 2
+    # grafo.adicionar_aresta(2,1, 49)
+    # grafo.adicionar_aresta(2,0, 2)
 
     
-    draw. desenhar_grafo(grafo, layout='burro')
-    result = acougue(grafo, 15, tipo='intel' )
+    # draw.desenhar_grafo(grafo, layout='circular')
+    # result = acougue(grafo, 40, tipo='intel' )
     
-    draw.desenhar_grafo(result, layout='circular')
+    # draw.desenhar_grafo(result, layout='circular')
 
-    print(result)
+    # print(result)
+
+#-----------------------------
+
 if __name__ == "__main__":
     main()
